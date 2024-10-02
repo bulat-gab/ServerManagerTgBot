@@ -1,4 +1,5 @@
 import subprocess
+from typing import Union
 from telegram import (ForceReply, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update,
                           InlineKeyboardButton, InlineKeyboardMarkup)
 from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
@@ -8,17 +9,33 @@ import os
 
 from src.config import settings
 from src.utils import logger
+from src.utils import file_utils
 
-def run_command(command):
-    result = subprocess.run(command, text=True, shell=True, capture_output=True)
+def run_command(command: Union[str, list[str]]):
+    result = subprocess.run(command, 
+        text=True, 
+        shell=True,
+        capture_output=True)
     if result.stdout:
         return result.stdout
     else:
         return result.stderr
 
 async def docker_ps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    response = run_command("docker ps")
+    response = run_command(["docker", "ps", "--format", "{{.Names}}: ({{.Status}})"])
 
+    await send_message(update, context, response)
+
+async def docker_logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        split = update.message.text.split(" ")
+        arguments_list = split[1:]
+
+    except Exception:
+        logger.warning(f"Invalid input: {update.message.text}")
+        return
+
+    response = run_command(["docker", "logs", *arguments_list])
     await send_message(update, context, response)
 
 async def send_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str) -> int:
@@ -29,10 +46,12 @@ async def send_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text:
         await update.callback_query.answer()
     elif update.message:
         await update.message.reply_text(text)
+    
+    file_utils.append(text) # FOR DEBUG ONLY
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
     await update.message.reply_html(
@@ -47,7 +66,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
-    await update.message.reply_text(update.message.text)
+    await send_message(update, context, update.message.text)
 
 def main():
     token = settings.BOT_TOKEN
@@ -55,9 +74,10 @@ def main():
 
 
     # on different commands - answer in Telegram
-    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("docker_ps", docker_ps))
+    application.add_handler(CommandHandler("docker_logs", docker_logs))
 
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
