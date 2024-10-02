@@ -22,20 +22,24 @@ def run_command(command: Union[str, list[str]]):
         return result.stderr
 
 async def docker_ps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    response = run_command(["docker", "ps", "--format", "{{.Names}}: ({{.Status}})"])
+    # response = run_command(["docker", "ps", "--format", "{{.Names}}: ({{.Status}})"])
+    response = run_command("docker ps --format '{{.Names}}: ({{.Status}})'")
 
     await send_message(update, context, response)
 
-async def docker_logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def docker_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         split = update.message.text.split(" ")
         arguments_list = split[1:]
+
+        arg_str = " ".join(arguments_list[1:])
 
     except Exception:
         logger.warning(f"Invalid input: {update.message.text}")
         return
 
-    response = run_command(["docker", "logs", *arguments_list])
+    response = run_command(f"docker {arg_str}")
+    # response = run_command(["docker", "logs", *arguments_list])
     await send_message(update, context, response)
 
 async def send_message(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str) -> int:
@@ -77,7 +81,7 @@ def main():
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("docker_ps", docker_ps))
-    application.add_handler(CommandHandler("docker_logs", docker_logs))
+    application.add_handler(CommandHandler("docker", docker_command))
 
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
