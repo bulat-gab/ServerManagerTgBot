@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     BOT_TOKEN: str
     BOT_USERNAME: str = ""
+    ALLOWED_USER_IDS: list[int] = [] # Telegram user ids that are allowed to use this bot.
 
 
 settings = Settings()
