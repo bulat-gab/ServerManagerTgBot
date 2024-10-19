@@ -29,8 +29,10 @@ async def docker_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
     query = update.callback_query
 
+    r = cli_service.docker_ps()
+
     keyboard = []
-    for i, docker_container in enumerate(cli_service.docker_ps()):
+    for i, docker_container in enumerate(docker_ps_mock):
         cont_name = docker_container.split(" ")[0]
         keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}", callback_data=f"container_{cont_name}")])
 
