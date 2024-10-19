@@ -68,6 +68,7 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def handler_docker_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     action = update.callback_query.data
+    action = action.split("_")[1]
 
     container_name = context.user_data.get("selected_container")
     if not container_name:
