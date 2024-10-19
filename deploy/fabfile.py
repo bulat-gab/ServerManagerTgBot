@@ -41,7 +41,7 @@ def deploy(c):
     c.put(f"{LOCAL_DIR}\\.env", f"{remote_dir}/.env")
     c.run(f"cd {remote_dir} && bash ./install.sh")
     c.run(f"cd {remote_dir} && pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js")
-
+    logger.info("Deploy finished")
 
 if __name__ == "__main__":
     c = init_connection()
