@@ -31,12 +31,12 @@ async def docker_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     for i, docker_container in enumerate(running_containers):
         cont_name = docker_container.split(":")[0]
         status = docker_container.split(":")[1]
-        keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}" + u" 🟢", callback_data=f"container_{cont_name}")])
+        keyboard.append([InlineKeyboardButton(f"{i+1}. {cont_name}. {status}" + u" 🟢", callback_data=f"container_{cont_name}")])
 
     for i, docker_container in enumerate(stopped_containers):
         cont_name = docker_container.split(":")[0]
         status = docker_container.split(":")[1]
-        keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}" + u" 🔴", callback_data=f"container_{cont_name}")])
+        keyboard.append([InlineKeyboardButton(f"{i+1}. {cont_name}. {status}" + u" 🔴", callback_data=f"container_{cont_name}")])
 
     keyboard.append([InlineKeyboardButton("« Back", callback_data="docker_back")])
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -57,9 +57,9 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Container-specific actions
     keyboard = [
         [InlineKeyboardButton("Start", callback_data="docker_start"),
-         InlineKeyboardButton("Stop", callback_data="stop")],
-        [InlineKeyboardButton("Restart", callback_data="restart"),
-         InlineKeyboardButton("Logs", callback_data="logs")],
+         InlineKeyboardButton("Stop", callback_data="docker_stop")],
+        [InlineKeyboardButton("Restart", callback_data="docker_restart"),
+         InlineKeyboardButton("Logs", callback_data="docker_logs")],
         [InlineKeyboardButton("« Back", callback_data="container_back")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
