@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from src.handlers import states
 from src.utils import logger
+from src import cli_service
 
 docker_ps_mock = [
     "MajorBot Up 21 hours",
@@ -29,7 +30,7 @@ async def docker_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     query = update.callback_query
 
     keyboard = []
-    for i, docker_container in enumerate(docker_ps_mock):
+    for i, docker_container in enumerate(cli_service.docker_ps):
         cont_name = docker_container.split(" ")[0]
         keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}", callback_data=f"container_{cont_name}")])
 

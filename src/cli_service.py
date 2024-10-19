@@ -16,3 +16,13 @@ def run_command(command: str) -> tuple[bool, str]:
         return True, result.stdout
     else:
         return False, result.stderr
+    
+
+def docker_ps() -> str:
+    result, response = run_command("docker ps --format '{{.Names}}: ({{.Status}})'")
+
+    logger.debug(f"Docker ps executed: {response}")
+    if not result:
+        return []
+    
+    return response
