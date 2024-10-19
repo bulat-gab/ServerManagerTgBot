@@ -17,23 +17,26 @@ docker_ps_mock = [
     "OkxRacerBot Up 10 days",
 ]
 
-# async def docker_ps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     # response = run_command(["docker", "ps", "--format", "{{.Names}}: ({{.Status}})"])
-#     response = run_command("docker ps --format '{{.Names}}: ({{.Status}})'")
-
-#     await send_message(update, context, response)
-
 async def docker_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Display a list of available containers."""
     logger.info("docker_menu")
 
     query = update.callback_query
 
-    containers = cli_service.docker_ps()
+    running_containers = cli_service.docker_ps(stopped=False)
+    stopped_containers = cli_service.docker_ps(stopped=True)
+
+
     keyboard = []
-    for i, docker_container in enumerate(containers):
+    for i, docker_container in enumerate(running_containers):
         cont_name = docker_container.split(":")[0]
-        keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}", callback_data=f"container_{cont_name}")])
+        status = docker_container.split(":")[1]
+        keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}" + u" 🟢", callback_data=f"container_{cont_name}")])
+
+    for i, docker_container in enumerate(stopped_containers):
+        cont_name = docker_container.split(":")[0]
+        status = docker_container.split(":")[1]
+        keyboard.append([InlineKeyboardButton(f"{i+1}. {docker_container}" + u" 🔴", callback_data=f"container_{cont_name}")])
 
     keyboard.append([InlineKeyboardButton("« Back", callback_data="docker_back")])
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -53,7 +56,7 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # Container-specific actions
     keyboard = [
-        [InlineKeyboardButton("Start", callback_data="start"),
+        [InlineKeyboardButton("Start", callback_data="docker_start"),
          InlineKeyboardButton("Stop", callback_data="stop")],
         [InlineKeyboardButton("Restart", callback_data="restart"),
          InlineKeyboardButton("Logs", callback_data="logs")],
@@ -62,3 +65,9 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await query.edit_message_text(text=f"Selected container: {container_name}", reply_markup=reply_markup)
     return states.CONTAINER_MENU
+
+async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    pass
+
+async def docker_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    pass
