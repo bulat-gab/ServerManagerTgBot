@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from src.handlers import states
-from src.utils import logger
+from src.utils import logger, telegram_utils
 from src import cli_service
 
 docker_ps_mock = [
@@ -67,7 +67,37 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return states.CONTAINER_MENU
 
 async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+    container_name = context.user_data.get("selected_container")
+    if not container_name:
+        return
+    
+    result, output = cli_service.run_command(f"docker start {container_name}")
+    await telegram_utils.send_message(update, context, output)
+    return
 
 async def docker_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+    container_name = context.user_data.get("selected_container")
+    if not container_name:
+        return
+    
+    result, output = cli_service.run_command(f"docker stop {container_name}")
+    await telegram_utils.send_message(update, context, output)
+    return
+
+async def docker_restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    container_name = context.user_data.get("selected_container")
+    if not container_name:
+        return
+    
+    result, output = cli_service.run_command(f"docker restart {container_name}")
+    await telegram_utils.send_message(update, context, output)
+    return
+
+async def docker_logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    container_name = context.user_data.get("selected_container")
+    if not container_name:
+        return
+    
+    result, output = cli_service.run_command(f"docker logs -n 15 {container_name}")
+    await telegram_utils.send_message(update, context, output)
+    return
