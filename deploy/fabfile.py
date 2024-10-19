@@ -1,5 +1,4 @@
 import logging
-
 from fabric import Connection, task
 
 from deploy_config import settings
