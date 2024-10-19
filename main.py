@@ -35,7 +35,7 @@ def main():
                 CallbackQueryHandler(go_back, pattern="^docker_back$"),
             ],
             states.CONTAINER_MENU: [
-                CallbackQueryHandler(handler_docker_action, pattern="^(start|stop|restart|logs)$"),
+                CallbackQueryHandler(handler_docker_action, pattern="^docker_(start|stop|restart|logs)$"),
                 CallbackQueryHandler(go_back, pattern="^container_back$"),
             ],
         },
