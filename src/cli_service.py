@@ -26,4 +26,5 @@ def docker_ps():
     if not result:
         return []
     
+    response = response.splitlines()
     return response
