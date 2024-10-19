@@ -5,20 +5,7 @@ from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
 from src.config import settings
 from src.utils import logger
 from src import handlers
-from src.handlers import states, start_command, docker_menu, go_back, container_menu, help_command
-
-
-async def handle_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle container actions like Start, Stop, Restart, Logs."""
-    query = update.callback_query
-    await query.answer()
-
-    action = query.data
-    container_name = context.user_data.get("selected_container")
-
-    # Here you would add the actual Docker management code
-    response = f"Performing {action} on {container_name}"
-    await query.edit_message_text(text=response)
+from src.handlers import states, start_command, docker_menu, go_back, container_menu, help_command, handler_docker_action
 
 async def pm2_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     pass
@@ -48,7 +35,7 @@ def main():
                 CallbackQueryHandler(go_back, pattern="^docker_back$"),
             ],
             states.CONTAINER_MENU: [
-                CallbackQueryHandler(handle_action, pattern="^(start|stop|restart|logs)$"),
+                CallbackQueryHandler(handler_docker_action, pattern="^(start|stop|restart|logs)$"),
                 CallbackQueryHandler(go_back, pattern="^container_back$"),
             ],
         },

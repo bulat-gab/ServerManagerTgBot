@@ -66,38 +66,54 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await query.edit_message_text(text=f"Selected container: {container_name}", reply_markup=reply_markup)
     return states.CONTAINER_MENU
 
-async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handler_docker_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    action = update.callback_query.data
+
     container_name = context.user_data.get("selected_container")
     if not container_name:
         return
-    
-    result, output = cli_service.run_command(f"docker start {container_name}")
+
+    cmd = f"docker {action} {container_name}"
+    if action == "logs":
+        cmd += " -n 15" # TODO: adjust the logs length
+
+    result, output = cli_service.run_command(cmd)
     await telegram_utils.send_message(update, context, output)
     return
 
-async def docker_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    container_name = context.user_data.get("selected_container")
-    if not container_name:
-        return
-    
-    result, output = cli_service.run_command(f"docker stop {container_name}")
-    await telegram_utils.send_message(update, context, output)
-    return
 
-async def docker_restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    container_name = context.user_data.get("selected_container")
-    if not container_name:
-        return
+# async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     container_name = context.user_data.get("selected_container")
+#     if not container_name:
+#         return
     
-    result, output = cli_service.run_command(f"docker restart {container_name}")
-    await telegram_utils.send_message(update, context, output)
-    return
+#     result, output = cli_service.run_command(f"docker start {container_name}")
+#     await telegram_utils.send_message(update, context, output)
+#     return
 
-async def docker_logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    container_name = context.user_data.get("selected_container")
-    if not container_name:
-        return
+# async def docker_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     container_name = context.user_data.get("selected_container")
+#     if not container_name:
+#         return
     
-    result, output = cli_service.run_command(f"docker logs -n 15 {container_name}")
-    await telegram_utils.send_message(update, context, output)
-    return
+#     result, output = cli_service.run_command(f"docker stop {container_name}")
+#     await telegram_utils.send_message(update, context, output)
+#     return
+
+# async def docker_restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     container_name = context.user_data.get("selected_container")
+#     if not container_name:
+#         return
+    
+#     result, output = cli_service.run_command(f"docker restart {container_name}")
+#     await telegram_utils.send_message(update, context, output)
+#     return
+
+# async def docker_logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     container_name = context.user_data.get("selected_container")
+#     if not container_name:
+#         return
+    
+#     result, output = cli_service.run_command(f"docker logs -n 15 {container_name}")
+#     await telegram_utils.send_message(update, context, output)
+#     return
