@@ -87,12 +87,12 @@ async def docker_lifecycle_handler(update: Update, context: ContextTypes.DEFAULT
     return
 
 
-async def docker_logs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def docker_logs_callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     container_name = context.user_data.get("selected_container")
     if not container_name:
         return
     
-    result, output = cli_service.run_command(f"docker logs -n 15 {container_name}")
+    result, output = cli_service.run_command(f"docker logs -n 50 {container_name}")
     await telegram_utils.send_message(update, context, output)
     return
 
