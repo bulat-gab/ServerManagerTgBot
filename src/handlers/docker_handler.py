@@ -17,6 +17,11 @@ docker_ps_mock = [
     "OkxRacerBot Up 10 days",
 ]
 
+def _extract_action(update: Update) -> str:
+    action = update.callback_query.data
+    action = action.split("_")[1]
+    return action
+
 async def docker_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Display a list of available containers."""
     logger.info("docker_menu")
@@ -66,22 +71,30 @@ async def container_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await query.edit_message_text(text=f"Selected container: {container_name}", reply_markup=reply_markup)
     return states.CONTAINER_MENU
 
-async def handler_docker_action(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    action = update.callback_query.data
-    action = action.split("_")[1]
-
+async def docker_lifecycle_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    action = _extract_action(update)
     container_name = context.user_data.get("selected_container")
     if not container_name:
         return
 
     cmd = f"docker {action} {container_name}"
-    if action == "logs":
-        cmd += " -n 15" # TODO: adjust the logs length
-
     result, output = cli_service.run_command(cmd)
+
+    if result:
+        output = f"'{container_name}' {action} successful"
+
     await telegram_utils.send_message(update, context, output)
     return
 
+
+async def docker_logs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    container_name = context.user_data.get("selected_container")
+    if not container_name:
+        return
+    
+    result, output = cli_service.run_command(f"docker logs -n 15 {container_name}")
+    await telegram_utils.send_message(update, context, output)
+    return
 
 # async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     container_name = context.user_data.get("selected_container")
@@ -110,11 +123,3 @@ async def handler_docker_action(update: Update, context: ContextTypes.DEFAULT_TY
 #     await telegram_utils.send_message(update, context, output)
 #     return
 
-# async def docker_logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     container_name = context.user_data.get("selected_container")
-#     if not container_name:
-#         return
-    
-#     result, output = cli_service.run_command(f"docker logs -n 15 {container_name}")
-#     await telegram_utils.send_message(update, context, output)
-#     return
