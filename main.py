@@ -5,6 +5,7 @@ from telegram.ext import (Application, CallbackQueryHandler, CommandHandler,
 from src.config import settings
 from src.utils import logger
 from src import handlers
+from handlers import docker_handlers
 from src.handlers import states, start_command, docker_menu, go_back, container_menu, help_command, docker_lifecycle_handler, docker_logs_handler
 
 async def pm2_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -43,6 +44,7 @@ def main():
         fallbacks=[
             CommandHandler("start", start_command),
             CommandHandler("help", help_command),
+            CommandHandler("docker_start", docker_handlers.docker_start),
             CallbackQueryHandler(help_command, pattern="^help"),
         ],
     )

@@ -96,14 +96,14 @@ async def docker_logs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
     await telegram_utils.send_message(update, context, output)
     return
 
-# async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     container_name = context.user_data.get("selected_container")
-#     if not container_name:
-#         return
+async def docker_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    container_name = context.user_data.get("selected_container")
+    if not container_name:
+        return
     
-#     result, output = cli_service.run_command(f"docker start {container_name}")
-#     await telegram_utils.send_message(update, context, output)
-#     return
+    result, output = cli_service.run_command(f"docker start {container_name}")
+    await telegram_utils.send_message(update, context, output)
+    return
 
 # async def docker_stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     container_name = context.user_data.get("selected_container")
